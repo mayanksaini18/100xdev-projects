@@ -1,14 +1,92 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>todo-app</title>
-  </head>
-  <body>
-    
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Todo App</title>
+</head>
+<body>
+  <h1>My Todo App</h1>
+  <input id="todoInput" placeholder="New todo">
+  <button onclick="addTodo()">Add</button>
+  <ul id="todoList"></ul>
+
+  <script>
+    const API = 'http://localhost:3001/api/todos';
+
+    async function loadTodos() {
+      try {
+        const res = await fetch(API);
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        const todos = await res.json();
+        const list = document.getElementById('todoList');
+        list.innerHTML = '';
+        todos.forEach(todo => {
+          const li = document.createElement('li');
+          li.style.cursor = 'pointer';
+          // Add a delete button next to each todo item
+          li.innerHTML = `
+            <span onclick="toggleTodo(${todo.id})">
+              ${todo.done ? '✅' : '⬜️'} ${todo.text}
+            </span>
+            <button onclick="deleteTodo(${todo.id})" style="margin-left: 10px; cursor: pointer;">Delete</button>
+          `;
+          list.appendChild(li);
+        });
+      } catch (error) {
+        console.error("Failed to load todos:", error);
+        alert("Could not load todos. Is the server running on port 4000?");
+      }
+    }
+
+    async function addTodo() {
+      const text = document.getElementById('todoInput').value;
+      if (!text) return;
+      try {
+        const res = await fetch(API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text })
+        });
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        document.getElementById('todoInput').value = '';
+        loadTodos();
+      } catch (error) {
+        console.error("Failed to add todo:", error);
+        alert("Could not add todo. Is the server running?");
+      }
+    }
+
+    async function toggleTodo(id) {
+      try {
+        const res = await fetch(`${API}/${id}`, { method: 'PUT' });
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        loadTodos();
+      } catch (error) {
+        console.error(`Failed to toggle todo ${id}:`, error);
+        alert("Could not update todo. Is the server running?");
+      }
+    }
+
+    async function deleteTodo(id) {
+      try {
+        const res = await fetch(`${API}/${id}`, { method: 'DELETE' });
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        loadTodos();
+      } catch (error) {
+        console.error(`Failed to delete todo ${id}:`, error);
+        alert("Could not delete todo. Is the server running?");
+      }
+    }
+
+    // Add event listener for the 'Enter' key on the input field
+    document.getElementById('todoInput').addEventListener('keyup', function(event) {
+      // Check if the key pressed was 'Enter'
+      if (event.key === 'Enter') {
+        addTodo();
+      }
+    });
+
+    loadTodos();
+  </script>
+</body>
 </html>
