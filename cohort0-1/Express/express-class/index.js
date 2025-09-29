@@ -74,7 +74,37 @@ const users = [{
     res.json({ msg: "Kidney health status updated successfully", kidney }); 
   });
 
-  
+  // delete routes -Delete a user or a kidney.
+
+  app.delete('/users/:userId',(req, res)=>{
+    const userId = parseInt(req.params.userId);
+    const userIndex = users.findIndex((u, index) => index === userId);
+
+    if (userIndex === -1) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+    users.splice(userIndex, 1);
+    res.json({ msg: "User deleted successfully" });
+
+  });
+
+  app.delete('/users/:userId/kidneys/:kidneyId',(req , res)=>{
+    const userId = parseInt(req.params.userId);
+    const kidneyId = parseInt(req.params.kidneyId);
+     const user = users.find((u, index) => index === userId);
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+    const kidneyIndex = user.kidneys.findIndex((k, index) => index === kidneyId);
+    if (kidneyIndex === -1) {
+      return res.status(404).json({ msg: "Kidney not found" });
+    
+    }
+    user.kidneys.splice(kidneyIndex, 1);
+    res.json({ msg: "Kidney deleted successfully" });
+
+  });
+
 
   const port = 3221;
   app.listen(port, () => {
