@@ -26,6 +26,26 @@ const users = [{
 });
 
 
+  // Post routes
+   app.post("/users", (req, res)=>{
+    const newUser = req.body;
+    users.push(newUser);
+    res.status(201).json({ msg: "User created successfully", user: newUser });
+   });
+
+   app.post("/users/:userId/kidneys", (req, res)=>{
+   const userId = parseInt(req.params.userId) ; //index of user in users array
+    const newKidney = req.body;
+    if (!users[userId]){
+      return res.status(404).json({ msg: "User not found" });
+    }
+
+    users[userId].kidneys.push(newKidney); 
+    res.status(201).json({ msg: "Kidney added successfully" , kidney: newKidney});
+   });
+   
+
+
   const port = 3221;
   app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
