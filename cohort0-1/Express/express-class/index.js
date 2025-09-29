@@ -45,6 +45,36 @@ const users = [{
    });
    
 
+  //  put routes -Update a user’s name or a kidney’s health status.
+
+  app.put('/users/:userId',(req, res)=>{
+    const userId = parseInt(req.params.userId);
+    const user = users.find((u, index) => index === userId);
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+    user.name = req.body.name 
+    res.json({ msg: "User name updated successfully", user });
+
+  })
+
+  app.put('/users/:userId/kidneys/:kidneyId',(req, res)=>{
+    const userId = parseInt(req.params.userId);
+    const kidneyId = parseInt(req.params.kidneyId);
+     const user = users.find((u, index) => index === userId);
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+    const kidney = user.kidneys.find((k, index) => index === kidneyId);
+    if (!kidney) {
+      return res.status(404).json({ msg: "Kidney not found" });
+    
+    }
+    kidney.healthy = req.body.healthy;
+    res.json({ msg: "Kidney health status updated successfully", kidney }); 
+  });
+
+  
 
   const port = 3221;
   app.listen(port, () => {
