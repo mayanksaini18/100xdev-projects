@@ -26,4 +26,6 @@ app.get('/hospital-chekup', (req, res) => {
     res.status(200).send(`Your kidney with id ${kidneyId} is healthy`);
 });
 
-app.listen(2000);
+app.listen(5112 , ()=>{
+    console.log('server started at 5112');
+});
